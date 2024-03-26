@@ -1,51 +1,46 @@
-<html>
-  <head>
-    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-    <script type="text/javascript">
-      google.charts.load("current", {packages:["corechart"]});
-      google.charts.setOnLoadCallback(fetchAndDrawChart);
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Graphique de température</title>
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+</head>
+<body>
+  <div id="chart_div"></div>
+  <script>
+    google.charts.load('current', { packages: ['corechart'] });
+    google.charts.setOnLoadCallback(fetchAndDrawChart);
 
-      function fetchAndDrawChart() {
-        // Récupération de données depuis notre API /tawarano/
-        fetch('/tawarano/')
-          .then(response => response.json())
-          .then(data => {
-            drawChart(data);
-          })
-          .catch(error => console.error('Error fetching data:', error));
-      }
+    function fetchAndDrawChart() {
+      // Récupération de données depuis notre API /tawarano/
+      fetch('/tawarano/')
+        .then(response => response.json())
+        .then(data => {
+          drawChart(data);
+        })
+        .catch(error => console.error('Erreur lors de la récupération des données:', error));
+    }
 
-      function drawChart(data) {
-        // Création d'un tableau pour stocker les données à afficher dans le graphique
-        var chartData = [['Time', 'Temperature']];
-        // Boucle à travers les données pour extraire les informations de température
-        data.results.forEach(item => {
-          // Conversion de la température de Kelvin à Celsius
-          var temperatureCelsius = item.temp;
-          // Formatage de la date et de l'heure
-          var date = new Date(item.Jour * 1000);
-          var time = date.toLocaleTimeString();
-          // Ajout des données au tableau
-          chartData.push([time, temperatureCelsius]);
-        });
+    function drawChart(data) {
+      // Convertir les données récupérées en un tableau utilisable par Google Charts
+      var dataTable = new google.visualization.DataTable();
+      dataTable.addColumn('string', 'Date');
+      dataTable.addColumn('number', 'Température');
+      
+      data.results.forEach(entry => {
+        var date = new Date(entry.Jour * 1000);
+        dataTable.addRow([date.toLocaleDateString(), entry.temp]);
+      });
 
-        // Création de l'objet de données Google Charts
-        var chartDataObject = google.visualization.arrayToDataTable(chartData);
+      // Configurer les options du graphique en ligne
+      var options = {
+        title: 'Évolution des températures de la ville de Tawarano',
+        legend: { position: 'none' }
+      };
 
-        // Options du graphique
-        var options = {
-          title: 'Temperature Forecast',
-          legend: { position: 'none' },
-          histogram: { bucketSize: 1 } // Taille des intervalles pour l'histogramme
-        };
-
-        // Création du graphique
-        var chart = new google.visualization.Histogram(document.getElementById('chart_div'));
-        chart.draw(chartDataObject, options);
-      }
-    </script>
-  </head>
-  <body>
-    <div id="chart_div" style="width: 900px; height: 500px;"></div>
-  </body>
+      var chart = new google.visualization.Histogram(document.getElementById('chart_div'));
+      chart.draw(dataTable, options);
+    }
+  </script>
+</body>
 </html>
