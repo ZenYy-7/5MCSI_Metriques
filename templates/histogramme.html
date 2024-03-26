@@ -12,7 +12,7 @@
     google.charts.setOnLoadCallback(fetchAndDrawChart);
 
     function fetchAndDrawChart() {
-      // Récupération de données depuis notre API /tawarano/
+
       fetch('/tawarano/')
         .then(response => response.json())
         .then(data => {
@@ -22,7 +22,6 @@
     }
 
     function drawChart(data) {
-      // Convertir les données récupérées en un tableau utilisable par Google Charts
       var dataTable = new google.visualization.DataTable();
       dataTable.addColumn('string', 'Date');
       dataTable.addColumn('number', 'Température');
@@ -32,7 +31,6 @@
         dataTable.addRow([date.toLocaleDateString(), entry.temp]);
       });
 
-      // Configurer les options du graphique en ligne
       var options = {
         title: 'Évolution des températures de la ville de Tawarano',
         legend: { position: 'none' }
