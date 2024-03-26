@@ -1,0 +1,48 @@
+<html>
+  <head>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      google.charts.load("current", {packages:["corechart"]});
+      google.charts.setOnLoadCallback(drawChart);
+      function drawChart() {
+        // Récupération des données depuis l'API OpenWeatherMap
+        fetch('https://samples.openweathermap.org/data/2.5/forecast?lat=0&lon=0&appid=xxx')
+          .then(response => response.json())
+          .then(data => {
+            // Création d'un tableau pour stocker les données à afficher dans le graphique
+            var chartData = [['Time', 'Temperature']];
+
+            // Boucle à travers les données pour extraire les informations de température
+            data.list.forEach(item => {
+              // Conversion de la température de Kelvin à Celsius
+              var temperatureCelsius = item.main.temp - 273.15;
+              // Formatage de la date et de l'heure
+              var date = new Date(item.dt * 1000);
+              var time = date.toLocaleTimeString();
+
+              // Ajout des données au tableau
+              chartData.push([time, temperatureCelsius]);
+            });
+
+            // Création de l'objet de données Google Charts
+            var chartDataObject = google.visualization.arrayToDataTable(chartData);
+
+            // Options du graphique
+            var options = {
+              title: 'Temperature Forecast',
+              legend: { position: 'none' },
+              histogram: { bucketSize: 1 } // Taille des intervalles pour l'histogramme
+            };
+
+            // Création du graphique
+            var chart = new google.visualization.Histogram(document.getElementById('chart_div'));
+            chart.draw(chartDataObject, options);
+          })
+          .catch(error => console.error('Error fetching data:', error));
+      }
+    </script>
+  </head>
+  <body>
+    <div id="chart_div" style="width: 900px; height: 500px;"></div>
+  </body>
+</html>
